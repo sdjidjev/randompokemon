@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		 <link rel="icon" href="favicon.ico" type="image/x-icon">
+		<link href='http://fonts.googleapis.com/css?family=Merriweather+Sans:400,300' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Niconne' rel='stylesheet' type='text/css'>
+		<title>Random Pokemon! </title>
+		<link href="index.css" type = "text/css" rel = "stylesheet">
+
+	</head>
+	
+	<body>
+
+		<div align = center>
+			Wow! A Pokemon appeared! Wow!
+			<div><img id = "pokemonpic" width = "150px"></img></div>
+		</div>
+		<script>
+			var img_number = getRandomPokemon();
+			function getRandomPokemon() {
+	  			var num = Math.floor(Math.random() * 649) + 1;
+	  			if (num < 10) {
+			      num = '00' + String(num);
+			    } else if (num < 100) {
+			      num = '0' + String(num);
+			    }
+			    console.log(num);
+			    return num;
+			}
+			document.getElementById("pokemonpic").src = "http://sprites.pokecheck.org/i/"+img_number+".gif";
+		</script>
+</body>
+</html>
