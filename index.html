@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app>
 	<head>
 		 <link rel="icon" href="favicon.ico" type="image/x-icon">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -7,59 +7,83 @@
 		<title>Random Pokemon! </title>
 		<link href="index.css" type = "text/css" rel = "stylesheet">
 
+		<script type="text/javascript" src="./angular.min.js"></script>
+
+		<script>
+			function pokemans($scope) {
+				$scope.text = "Wow. A Pokemon appeared! Wow.";
+
+				$scope.getRandomPokemon = function() {
+					var num = Math.floor(Math.random() * 649) + 1;
+					if (num < 10) {
+						num = '00' + String(num);
+					} else if (num < 100) {
+						num = '0' + String(num);
+					}
+
+					var pokemon_dict = window.localStorage.getItem('pokemans');
+					if (!pokemon_dict) {
+						pokemon_dict = new Array(649).join("0");
+					}
+					var num2 = Number(num)-1;
+					pokemon_dict = pokemon_dict.substring(0, num2) + '1' + pokemon_dict.substring(num2+1);
+					window.localStorage.setItem('pokemans', pokemon_dict);
+
+					console.log(num);
+					return num;
+				};
+
+				$scope.isShiny = function(){
+					var num = Math.floor(Math.random()*1000);
+					var str = "";
+					if (num == 2 || num == 1){
+						return true;
+					}
+					else{
+						return false
+					}
+				};
+
+				$scope.isWinner = function() {
+					var pokemon_dict = window.localStorage.getItem('pokemans');
+					if (pokemon_dict.indexOf("0") == -1) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+
+				$scope.reset = function(){
+					window.localStorage.setItem('pokemans', new Array(649).join("0"));
+					$scope.winner = $scope.isWinner();
+				}
+
+				$scope.update = function() {
+					$scope.pokemontype = "i"
+					$scope.num = $scope.getRandomPokemon();
+					$scope.shiny = $scope.isShiny();
+					$scope.winner = $scope.isWinner();
+					if ($scope.shiny) {
+						$scope.pokemontype = "s";
+					}
+				};
+
+				$scope.update();
+			}
+		</script>
+
 	</head>
 	
 	<body>
 
-		<div align = center>
+		<div ng-controller="pokemans" align=center>
 
-			<div id = "text">Wow. A Pokemon appeared! Wow.</div>
-			<div><img id = "pokemonpic" height = "150px"></img></div>
-			<div id = "shiny"></div>
-			<div id = "winner"></div>
+			<div>{{text}}</div>
+			<div><img ng-src="http://sprites.pokecheck.org/{{pokemontype}}/{{num}}.gif" height="150px"></img></div>
+			<div ng-show="shiny">look is a shiny</div>
+			<div ng-show="winner">a winner is u</div>
+			<button ng-click="update()">new</button>
+			<button ng-click="reset()" ng-show = "winner">reset if u want</button>
 		</div>
-		<script>
-			var pokemon_dict = window.localStorage.getItem('pokemans');
-			if (!pokemon_dict) {
-				pokemon_dict = new Array(649).join("0");
-				console.log(pokemon_dict);
-			}
-			var img_number = getRandomPokemon();
-			function getRandomPokemon() {
-	  			var num = Math.floor(Math.random() * 649) + 1;
-	  			if (num < 10) {
-			      num = '00' + String(num);
-			    } else if (num < 100) {
-			      num = '0' + String(num);
-			    }
-			    console.log(num);
-			    return num;
-			}
-			function isShiny(){
-				var num = Math.floor(Math.random()*1000);
-				var str = "";
-				if (num == 2 || num == 1){
-					var shiny = document.getElementById("shiny");
-					shiny.innerHTML = "omg is a shiny";
-					return true;
-				}
-				else{
-					return false
-				}
-			}
-			if (isShiny()){
-				document.getElementById("pokemonpic").src = "http://sprites.pokecheck.org/s/"+img_number+".gif";
-			}
-			else{
-				document.getElementById("pokemonpic").src = "http://sprites.pokecheck.org/i/"+img_number+".gif";
-			}
-
-			var num = Number(img_number)-1;
-			pokemon_dict = pokemon_dict.substring(0, num) + '1' + pokemon_dict.substring(num+1);
-			if (pokemon_dict.indexOf("0") == -1) {
-				document.getElementById("winner").innerHTML = "a winner is you."
-			}
-			window.localStorage.setItem('pokemans', pokemon_dict);
-		</script>
 </body>
 </html>
