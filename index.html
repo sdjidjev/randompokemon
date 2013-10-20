@@ -8,12 +8,15 @@
 		<link href="index.css" type = "text/css" rel = "stylesheet">
 
 		<script type="text/javascript" src="./angular.min.js"></script>
+		<script type="text/javascript" src = "./sasstore.min.js"></script>
 
 		<script>
 
 			function pokemans($scope) {
 				$scope.localStoreVersion = '2';
 				$scope.text = "Wow. A Pokemon appeared! Wow.";
+				$scope.store = new SASStore({id: "pokemonStore", length: 649, itemSize: 1});
+
 
 				$scope.range = function(n) {
 					return new Array(n);
@@ -31,53 +34,17 @@
 					return num;
 				}
 
-				$scope.getBinary = function() {
-					var b64 = window.localStorage.getItem('pokemans');
-					var version = window.localStorage.getItem('version');
-					if (!b64 || version != '2') {
-						return new Array(650).join("0");
-					} else {
-						var b64arr = b64.split(",");
-						var binaryString = "";
-						for (var i = 0; i < b64arr.length; i += 2) {
-							var binaryPart = parseInt(atob(b64arr[i+1]), 16).toString(2);
-							while (binaryPart.length < parseInt(b64arr[i])) {
-								binaryPart = "0" + binaryPart;
-							}
-							binaryString += binaryPart;
-						}
-						return binaryString;
-					}
-				}
-
-				$scope.setBinary = function(binary) {
-					var storeVal = "";
-					for (var i = 0; i < binary.length; i += 64) {
-						if (i+64 >= binary.length) {
-							storeVal += (binary.length - i) + ","
-						} else {
-							storeVal += "64,";
-						}
-						storeVal += btoa(parseInt(binary.substring(i, i+64), 2).toString(16));
-						if (i < binary.length - 64) {
-							storeVal += ","
-						}
-					}
-					window.localStorage.setItem('pokemans', storeVal);
-					window.localStorage.setItem('version', $scope.localStoreVersion);
-				}
+			
 
 				$scope.getPokemon = function(num) {
-					var binary = $scope.getBinary();
 					var num2 = num-1;
-					binary = binary.substring(0, num2) + '1' + binary.substring(num2+1);
-					$scope.setBinary(binary);
+					$scope.store.setItem(num2, "1");
 					return num;
 				};
 
 				$scope.getProgress = function() {
-					var binary = $scope.getBinary();
-					return (binary.split("0").length - 1) + "/649 pokemans left";
+					var count = $scope.store.countOccurrencesOf("0");
+					return "you've got " +count + "/649 pokemans left";
 				};
 
 				$scope.isShiny = function(){
@@ -92,8 +59,7 @@
 				};
 
 				$scope.isWinner = function() {
-					var binary = $scope.getBinary()
-					if (binary.indexOf("0") == -1) {
+					if ($scope.store.countOccurrencesOf("0") == 0) {
 						return true;
 					} else {
 						return false;
@@ -101,7 +67,7 @@
 				}
 
 				$scope.reset = function(){
-					$scope.setBinary(new Array(649).join("0"));
+					$scope.store.reset();
 					$scope.winner = $scope.isWinner();
 				}
 
@@ -117,7 +83,7 @@
 				}
 
 				$scope.queue = [];
-				for (var i = 0; i < 20; i++) {
+				for (var i = 0; i < 50; i++) {
 					$scope.queue.push(Math.floor(Math.random() * 649) + 1);
 				}
 
@@ -152,7 +118,7 @@
 			<div ng-show="shiny">look is a shiny</div>
 			<div ng-show="winner">a winner is u</div>
 			<button ng-click="update()">new</button>
-			<button ng-click="reset()" ng-show = "winner">reset if u want</button>
+			<button ng-click="reset()" >reset if u want</button>
 		</div>
 </body>
 </html>
